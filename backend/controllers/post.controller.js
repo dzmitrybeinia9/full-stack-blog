@@ -20,6 +20,7 @@ export const getPost = async (req, res) => {
 };
 
 export const createPost = async (req, res) => {
+  console.log("CREATE POST");
   const clerkId = req.auth.userId;
 
   console.log("auth", req.auth);
@@ -38,7 +39,19 @@ export const createPost = async (req, res) => {
     return res.status(404).json("User not found");
   }
 
-  const post = new Post({ user: user._id, ...req.body });
+  let slug = req.body.title.toLowerCase().split(" ").join("-");
+
+  let exisingSlug = await Post.findOne({ slug });
+
+  let count = 2;
+
+  while (exisingSlug) {
+    slug = `${slug}-${count}`;
+    exisingSlug = await Post.findOne({ slug });
+    count++;
+  }
+
+  const post = new Post({ user: user._id, slug, ...req.body });
   try {
     await post.save();
     res.status(201).send(post);
