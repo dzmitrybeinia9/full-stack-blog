@@ -1,31 +1,52 @@
 import React from 'react'
 import Image from '../components/Image'
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import PostMenuActions from '../components/PostMenuActions'
 import Search from '../components/Search'
 import Comments from '../components/Comments'
+import { useQuery } from '@tanstack/react-query'
+import axios from 'axios'
+import { format } from 'timeago.js'
+
+const fetchPost = async (slug) => {
+    const res = await axios.get(`${import.meta.env.VITE_API_URL}/posts/${slug}`);
+    console.log(`${import.meta.env.VITE_API_URL}/posts/${slug}`);
+    return res.data;
+}
 
 const SinglePostPage = () => {
+
+    const { slug } = useParams();
+
+    const { isPending, error, data } = useQuery({
+        queryKey: ['post', slug],
+        queryFn: () => fetchPost(slug),
+    });
+
+    if (isPending) return 'Loading...';
+    if (error) return 'An error has occurred: ' + error.message;
+    if(!data) return 'Post not found';
+
     return (
         <div className='flex flex-col gap-8'>
             {/* details */}
             <div className='flex gap-8'>
                 <div className='lg:w-3/5 flex flex-col gap-8'>
-                    <h1 className='text-xl md:text-3xl xl:text-4xl 2xl:text-5xl font-semibold'>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Qui quaerat eveniet atque provident eligendi, laboriosam blanditiis voluptate adipisci voluptatibus minima!</h1>
+                    <h1 className='text-xl md:text-3xl xl:text-4xl 2xl:text-5xl font-semibold'>{data.title}</h1>
                     <div className='flex items-center gap-2 text-gray-400 text-sm'>
                         <span>Written By</span>
-                        <Link className='text-blue-800'>Jonh Doe</Link>
+                        <Link className='text-blue-800'>{data.user.username}</Link>
                         <span>on</span>
-                        <Link className='text-blue-800'>Web Design</Link>
-                        <span>2 days ago</span>
+                        <Link className='text-blue-800'>{data.user.category}</Link>
+                        <span>{format(data.createdAt)}</span>
                     </div>
                     <p className='text-gray-500 font-medium'>
-                        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Minima consectetur animi, ad illum quam sed tenetur accusamus suscipit? Ipsa animi accusamus non laudantium qui, minus a reiciendis quaerat numquam atque cupiditate dolorum incidunt molestiae explicabo. Quidem voluptatum necessitatibus, et itaque iste, incidunt error, maiores excepturi ullam harum doloremque minima nobis!
+                        {data.desc}
                     </p>
                 </div>
-                <div className='hidden lg:block w-2/5'>
-                    <Image path={"full-stack-blog/postImg.jpeg"} w={600} className="rounded-2xl"></Image>
-                </div>
+                {data.img && <div className='hidden lg:block w-2/5'>
+                    <Image path={data.img} w={600} className="rounded-2xl"></Image>
+                </div>}
             </div>
 
             {/* content */}
@@ -64,13 +85,13 @@ const SinglePostPage = () => {
                     <h1 className='mb-4 text-sm font-medium'>Author</h1>
                     <div className='flex flex-col gap-4'>
                         <div className='flex items-center gap-12'>
-                            <Image
-                                path={"full-stack-blog/userImg.jpeg"}
+                            {data.user.img && <Image
+                                path={data.user.img}
                                 w={48}
                                 h={48}
                                 className="w-12 h-12 rounded-full object-cover"
-                            />
-                            <Link className='text-blue-800'>John Doe</Link>
+                            />}
+                            <Link className='text-blue-800'>{data.user.username}</Link>
                         </div>
                         <p className='text-sm text-gray-500'>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Impedit, ducimus?</p>
                         <div className='flex gap-2'>

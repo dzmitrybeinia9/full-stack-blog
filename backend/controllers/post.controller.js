@@ -23,7 +23,10 @@ export const getPosts = async (req, res) => {
 
 export const getPost = async (req, res) => {
   try {
-    const post = await Post.findOne({ slug: req.params.slug });
+    const post = await Post.findOne({ slug: req.params.slug }).populate(
+      "user",
+      "username img"
+    );
     res.status(200).send(post);
   } catch (error) {
     res.status(404).send({ message: error.message });

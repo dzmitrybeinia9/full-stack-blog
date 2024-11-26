@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { format } from 'timeago.js'
 
 const PostListItem = ({ post }) => {
+    console.log(post);
     return (
         <div className='flex flex-col xl:flex-row gap-8 mb-8'>
             {/* image */}
@@ -17,7 +18,7 @@ const PostListItem = ({ post }) => {
             {/* details */}
             <div className='flex flex-col gap-4 xl:w-2/3'>
                 <Link
-                    to="/test"
+                    to={`/${post.slug}`}
                     className='text-4xl font-semibold'
                 >
                     {post.title}
