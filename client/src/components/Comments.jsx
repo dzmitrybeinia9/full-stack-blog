@@ -10,7 +10,7 @@ const fetchComments = async (postId) => {
 }
 
 const Comments = ({ postId }) => {
-
+  const user = useUser();
   const { getToken } = useAuth();
 
   const { isPending, error, data } = useQuery({
@@ -41,8 +41,8 @@ const Comments = ({ postId }) => {
     },
   });
 
-  if (isPending) return 'Loading...';
-  if (error) return 'An error has occurred: ' + error.message;
+  // if (isPending) return 'Loading...';
+  // if (error) return 'An error has occurred: ' + error.message;
 
 
   const handleSubmit = (e) => {
@@ -63,9 +63,34 @@ const Comments = ({ postId }) => {
         <textarea name="desc" placeholder='Write a comment...' className='w-full p-4 rounded-xl'></textarea>
         <button className='bg-blue-800 px-4 py-3 text-white font-medium rounded-xl'>Send</button>
       </form>
-      {data.map(comment => (
-        <Comment key={comment._id} comment={comment} />
-      ))}
+      {isPending ?
+        "Loading..." :
+        error ?
+          "Error loading comments" :
+
+          <>
+
+            {
+              mutation.isPending && (
+                <Comment comment={{
+                  desc: `${mutation.variables.desc} (sending...)`,
+                  createdAt: new Date(),
+                  user: {
+                    img: user.imageUrl,
+                    username: user.username,
+                  }
+                }}
+                />
+              )
+
+            }
+
+            {data.map(comment => (
+              <Comment key={comment._id} comment={comment} />
+            ))}
+          </>
+
+      }
     </div>
   )
 }

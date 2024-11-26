@@ -25,7 +25,7 @@ const SinglePostPage = () => {
 
     if (isPending) return 'Loading...';
     if (error) return 'An error has occurred: ' + error.message;
-    if(!data) return 'Post not found';
+    if (!data) return 'Post not found';
 
     return (
         <div className='flex flex-col gap-8'>
@@ -108,7 +108,7 @@ const SinglePostPage = () => {
 
                         </div>
                     </div>
-                    <PostMenuActions />
+                    <PostMenuActions post={data} />
                     <h1 className='mt-8 mb-4 text-sm font-medium'>Calegories</h1>
                     <div className='flex flex-col gap-2 text-sm'>
                         <Link
@@ -152,7 +152,7 @@ const SinglePostPage = () => {
                     <Search />
                 </div>
             </div>
-            <Comments postId={data._id}/>
+            <Comments postId={data._id} />
         </div>
     )
 }
