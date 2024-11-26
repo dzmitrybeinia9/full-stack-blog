@@ -3,9 +3,19 @@ import User from "../models/user.model.js";
 import ImageKit from "imagekit";
 
 export const getPosts = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 2;
+
   try {
-    const posts = await Post.find();
-    res.status(200).send(posts);
+    const posts = await Post.find()
+      .populate("user", "username")
+      .limit(limit)
+      .skip(limit * (page - 1));
+
+    const totalPosts = await Post.countDocuments();
+    const hasMore = totalPosts > page * limit;
+
+    res.status(200).send({ posts, hasMore });
   } catch (error) {
     res.status(404).send({ message: error.message });
   }
