@@ -6,9 +6,59 @@ export const getPosts = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 2;
 
+  const query = {};
+
+  const cat = req.query.cat;
+  const author = req.query.searchParamsObj?.author;
+  const searchQuery = req.query.searchParamsObj?.search;
+  const sortQuery = req.query.searchParamsObj?.sort;
+
+  if (cat) {
+    query.category = cat;
+  }
+
+  if (searchQuery) {
+    query.title = {
+      $regex: searchQuery,
+      $options: "i",
+    };
+  }
+
+  if (author) {
+    const user = await User.findOne({ username: author }).select("_id");
+    if (!user) {
+      return res.status(404).send("No posts found");
+    }
+    query.user = user._id;
+  }
+  console.log("query", query);
+
+  let sortObj = {};
+  if (sortQuery) {
+    switch (sortQuery) {
+      case "newest":
+        sortObj.createdAt = -1;
+        break;
+      case "oldest":
+        sortObj.createdAt = 1;
+        break;
+      case "popular":
+        sortObj.visit = -1;
+        break;
+      case "trending":
+        sortObj.visit = 1;
+        sortObj.createdAt = {
+          $gte: new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7),
+        };
+        break;
+    }
+  }
+  console.log("sortObj", sortObj);
+
   try {
-    const posts = await Post.find()
+    const posts = await Post.find(query)
       .populate("user", "username")
+      .sort(sortObj)
       .limit(limit)
       .skip(limit * (page - 1));
 
@@ -37,8 +87,6 @@ export const createPost = async (req, res) => {
   console.log("CREATE POST");
   const clerkUserId = req.auth.userId;
 
-  console.log("auth", req.auth);
-
   if (!clerkUserId) {
     return res.status(401).send("Unauthorized");
   }
@@ -46,8 +94,6 @@ export const createPost = async (req, res) => {
   console.log("clerkUserId", clerkUserId);
 
   const user = await User.findOne({ clerkUserId });
-
-  console.log("user", user);
 
   if (!user) {
     return res.status(404).json("User not found");
@@ -82,7 +128,7 @@ export const deletePost = async (req, res) => {
   }
 
   const role = req.auth.sessionClaims?.metadata?.role || "user";
-  
+
   if (role === "admin") {
     await Post.findByIdAndDelete(req.params.id);
     return res.status(200).send("Post deleted successfully");

@@ -64,7 +64,7 @@ const WritePage = () => {
             img: cover.filePath || "",
             title: formData.get('title'),
             desc: formData.get('desc'),
-            cat: formData.get('cat'),
+            category: formData.get('cat'),
             content: value,
         }
 
