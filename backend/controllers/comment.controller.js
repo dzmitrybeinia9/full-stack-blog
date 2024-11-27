@@ -11,14 +11,14 @@ export const getPostComments = async (req, res) => {
 };
 
 export const addComment = async (req, res) => {
-  const clerkId = req.auth.userId;
+  const clerkUserId = req.auth.userId;
   const postId = req.params.postId;
 
-  if (!clerkId) {
+  if (!clerkUserId) {
     return res.status(401).json("Not authenticated!");
   }
 
-  const user = await User.findOne({ clerkId });
+  const user = await User.findOne({ clerkUserId });
 
   const newComment = new Comment({
     ...req.body,

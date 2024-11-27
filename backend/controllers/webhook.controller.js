@@ -23,12 +23,13 @@ export const clerkWebhook = async (req, res) => {
     });
   }
 
-//   console.log(event.data);
+  console.log(event.data);
 
   if (event.type === "user.created") {
     const newUser = new User({
-      clerkId: event.data.id,
-      username: event.data.username || event.data.email_addresses[0].email_address,
+      clerkUserId: event.data.id,
+      username:
+        event.data.username || event.data.email_addresses[0].email_address,
       email: event.data.email_addresses[0].email_address,
       img: event.data.profile_image_url,
     });
@@ -38,7 +39,7 @@ export const clerkWebhook = async (req, res) => {
 
   if (event.type === "user.deleted") {
     const deletedUser = await User.findOneAndDelete({
-        clerkId: event.data.id,
+      clerkUserId: event.data.id,
     });
 
     await Post.deleteMany({ user: deletedUser._id });

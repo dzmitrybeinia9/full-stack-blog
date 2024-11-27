@@ -25,12 +25,10 @@ const PostMenuActions = ({ post }) => {
         },
     });
 
-    console.log("savedPosts", savedPosts);
-    console.log("data", savedPosts?.data);
+    const isAdmin = user?.publicMetadata?.role === "admin" || false;
 
+    console.log(isAdmin);
     const isSaved = savedPosts?.some((p) => p === post._id) || false;
-
-    console.log(isSaved);
 
     const deleteMutation = useMutation({
         mutationFn: async () => {
@@ -115,7 +113,7 @@ const PostMenuActions = ({ post }) => {
                         <span>Save this Post</span>
                         {saveMutation.isPending && <span className='text-sm'>(in progress)</span>}
                     </div>}
-            {user && (post.user.username === user.username) &&
+            {user && (post.user.username === user.username || isAdmin) &&
                 <div
                     className='flex items-center gap-2 py-2 text-sm cursor-pointer'
                     onClick={handleDelete}>

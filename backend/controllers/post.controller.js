@@ -35,17 +35,17 @@ export const getPost = async (req, res) => {
 
 export const createPost = async (req, res) => {
   console.log("CREATE POST");
-  const clerkId = req.auth.userId;
+  const clerkUserId = req.auth.userId;
 
   console.log("auth", req.auth);
 
-  if (!clerkId) {
+  if (!clerkUserId) {
     return res.status(401).send("Unauthorized");
   }
 
-  console.log("clerkId", clerkId);
+  console.log("clerkUserId", clerkUserId);
 
-  const user = await User.findOne({ clerkId });
+  const user = await User.findOne({ clerkUserId });
 
   console.log("user", user);
 
@@ -75,13 +75,20 @@ export const createPost = async (req, res) => {
 };
 
 export const deletePost = async (req, res) => {
-  const clerkId = req.auth.userId;
+  const clerkUserId = req.auth.userId;
 
-  if (!clerkId) {
+  if (!clerkUserId) {
     return res.status(401).send("Unauthorized");
   }
 
-  const user = await User.findOne({ clerkId });
+  const role = req.auth.sessionClaims?.metadata?.role || "user";
+  
+  if (role === "admin") {
+    await Post.findByIdAndDelete(req.params.id);
+    return res.status(200).send("Post deleted successfully");
+  }
+
+  const user = await User.findOne({ clerkUserId });
 
   if (!user) {
     return res.status(404).send("User not found");

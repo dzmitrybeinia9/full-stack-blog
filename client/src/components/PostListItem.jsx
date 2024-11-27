@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { format } from 'timeago.js'
 
 const PostListItem = ({ post }) => {
-    console.log(post);
+    console.log(post); 
     return (
         <div className='flex flex-col xl:flex-row gap-8 mb-8'>
             {/* image */}
