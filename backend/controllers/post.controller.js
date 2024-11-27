@@ -9,9 +9,10 @@ export const getPosts = async (req, res) => {
   const query = {};
 
   const cat = req.query.cat;
-  const author = req.query.searchParamsObj?.author;
-  const searchQuery = req.query.searchParamsObj?.search;
-  const sortQuery = req.query.searchParamsObj?.sort;
+  const author = req.query.author;
+  console.log("author", author);
+  const searchQuery = req.query.search;
+  const sortQuery = req.query.sort;
 
   if (cat) {
     query.category = cat;
